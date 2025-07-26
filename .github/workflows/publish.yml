@@ -64,9 +64,10 @@ jobs:
             "name": "@seyuna/cli",
             "version": "$VERSION",
             "description": "Seyuna CLI",
-            "exports": {
+            "bin": {
               "seyuna": "./deno-wrapper.ts"
             },
+            "exports": "./deno-wrapper.ts",
             "license": "MIT",
             "tasks": {
               "install": "deno run --allow-write --allow-net deno-install.ts"
