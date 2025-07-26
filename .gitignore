@@ -1,0 +1,9 @@
+/target
+/bin
+/styles
+.secrets
+seyuna.json
+package.json
+package-lock.json
+deno.json
+deno.lock
