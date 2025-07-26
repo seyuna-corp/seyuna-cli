@@ -1,0 +1,115 @@
+name: Publish CLI to npm and JSR
+
+on:
+  workflow_run:
+    workflows: ["Build and Release"]  # Must match the name in release.yml
+    types:
+      - completed
+
+permissions:
+  contents: read
+  id-token: write  # Required for JSR auth via OIDC
+
+jobs:
+  publish:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Determine version with branch suffix
+        id: version
+        run: |
+          VERSION=$(grep '^version' Cargo.toml | head -1 | cut -d '"' -f2)
+          # Extract branch from the workflow_run event payload
+          BRANCH=${{ github.event.workflow_run.head_branch }}
+          if [ "$BRANCH" != "main" ]; then
+            VERSION="${VERSION}-${BRANCH}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Generate package.json and deno.json
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+
+          mkdir -p js
+
+          cat > js/package.json <<EOF
+          {
+            "name": "@seyuna/cli",
+            "version": "$VERSION",
+            "bin": {
+              "seyuna": "./bin/seyuna"
+            },
+            "scripts": {
+              "prepare": "node node-install.js"
+            },
+            "description": "Seyuna CLI",
+            "author": "Seyuna",
+            "license": "MIT",
+            "engines": {
+              "node": ">=18"
+            }
+          }
+          EOF
+
+          cat > js/deno.json <<EOF
+          {
+            "name": "@seyuna/cli",
+            "version": "$VERSION",
+            "description": "Seyuna CLI",
+            "exports": {
+              "seyuna": "./deno-wrapper.ts"
+            },
+            "license": "MIT",
+            "tasks": {
+              "install": "deno run --allow-write --allow-net deno-install.ts"
+            }
+          }
+          EOF
+
+      - name: Authenticate with npm
+        run: npm config set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
+
+      - name: Check if version exists on npm
+        id: check_npm
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          echo "Checking if version $VERSION exists on npm"
+          if npm view @seyuna/cli@"$VERSION"; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Publish to npm
+        if: steps.check_npm.outputs.exists == 'false'
+        run: |
+          set -e
+          VERSION="${{ steps.version.outputs.version }}"
+          echo "Publishing version: $VERSION"
+          cd js
+          npm publish --access public
+
+
+      - name: Check if version exists on JSR
+        id: check_jsr
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          if npx jsr info @seyuna/cli@"$VERSION" > /dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Publish to JSR
+        if: steps.check_jsr.outputs.exists == 'false'
+        run: |
+          cd js
+          npx jsr publish

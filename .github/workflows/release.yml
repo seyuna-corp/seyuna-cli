@@ -1,0 +1,128 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+      - next
+      - dev
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Seyuna CLI
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact_name: seyuna-linux
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact_name: seyuna-windows.exe
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            artifact_name: seyuna-macos
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache cargo registry and target directory
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+
+      - name: Build Binary
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Rename Binary
+        run: |
+          mkdir dist
+          cp target/${{ matrix.target }}/release/seyuna dist/${{ matrix.artifact_name }}
+        shell: bash
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: dist/${{ matrix.artifact_name }}
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Determine version with branch suffix
+        id: version
+        run: |
+          # Read version from Cargo.toml
+          ver=$(grep '^version' Cargo.toml | head -1 | cut -d '"' -f2)
+
+          # Get current branch name from GITHUB_REF (refs/heads/branch)
+          branch=${GITHUB_REF#refs/heads/}
+
+          # Append branch name if not main
+          if [ "$branch" != "main" ]; then
+            ver="${ver}-${branch}"
+          fi
+
+          echo "version=$ver" >> "$GITHUB_OUTPUT"
+
+      - name: Check if release exists
+        id: check_release
+        run: |
+          if gh release view "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release with commit history
+        if: steps.check_release.outputs.exists == 'false'
+        run: |
+          last_tag=$(git tag --sort=-creatordate | grep '^v' | grep -v "v${{ steps.version.outputs.version }}" | head -n 1)
+
+          if [ -z "$last_tag" ]; then
+            changelog=$(git log --oneline)
+          else
+            changelog=$(git log "$last_tag"..HEAD --oneline)
+          fi
+
+          {
+            echo "Automated release for version v${{ steps.version.outputs.version }}"
+            echo ""
+            echo "## Changes since ${last_tag:-start}:"
+            echo ""
+            echo "$changelog"
+          } > RELEASE_NOTES.md
+
+          gh release create "v${{ steps.version.outputs.version }}" \
+            dist/*/* \
+            --title "v${{ steps.version.outputs.version }}" \
+            --notes-file RELEASE_NOTES.md
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
