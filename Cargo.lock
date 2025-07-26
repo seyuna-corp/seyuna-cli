@@ -1103,7 +1103,7 @@ dependencies = [
 
 [[package]]
 name = "seyuna"
-version = "0.0.2"
+version = "0.0.201"
 dependencies = [
  "anyhow",
  "clap",
