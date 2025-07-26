@@ -23,16 +23,16 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Determine version with branch suffix
+      - name: Determine version and branch tag
         id: version
         run: |
           VERSION=$(grep '^version' Cargo.toml | head -1 | cut -d '"' -f2)
-          # Extract branch from the workflow_run event payload
-          BRANCH=${{ github.event.workflow_run.head_branch }}
+          BRANCH="${{ github.event.workflow_run.head_branch }}"
           if [ "$BRANCH" != "main" ]; then
             VERSION="${VERSION}-${BRANCH}"
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "branch_tag=$BRANCH" >> $GITHUB_OUTPUT
 
       - name: Generate package.json and deno.json
         run: |
@@ -89,15 +89,19 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Publish to npm
+      - name: Publish to npm with branch tag
         if: steps.check_npm.outputs.exists == 'false'
         run: |
           set -e
           VERSION="${{ steps.version.outputs.version }}"
-          echo "Publishing version: $VERSION"
+          BRANCH="${{ steps.version.outputs.branch_tag }}"
+          echo "Publishing $VERSION to npm with tag $BRANCH"
           cd js
-          npm publish --access public
-
+          if [ "$BRANCH" = "main" ]; then
+            npm publish --access public --tag latest
+          else
+            npm publish --access public --tag "$BRANCH"
+          fi
 
       - name: Check if version exists on JSR
         id: check_jsr
@@ -109,8 +113,13 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Publish to JSR
+      - name: Publish to JSR with branch tag
         if: steps.check_jsr.outputs.exists == 'false'
         run: |
+          BRANCH="${{ steps.version.outputs.branch_tag }}"
           cd js
-          npx jsr publish
+          if [ "$BRANCH" = "main" ]; then
+            npx jsr publish --tag latest
+          else
+            npx jsr publish --tag "$BRANCH"
+          fi
