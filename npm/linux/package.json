@@ -1,0 +1,7 @@
+{
+  "name": "@seyuna/cli-linux",
+  "version": "__CLI_VERSION__",
+  "os": [
+    "linux"
+  ]
+}

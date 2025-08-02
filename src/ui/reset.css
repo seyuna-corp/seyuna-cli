@@ -1,0 +1,80 @@
+/* 
+  Reset all elements to a zeroed baseline to ensure consistency in all browsers.
+*/
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+  font-family: inherit;
+}
+
+/* 
+  Prevent automatic font size adjustments on mobile devices to keep text rendering consistent across platforms.
+*/
+html {
+  -moz-text-size-adjust: none;    /* Firefox */
+  -webkit-text-size-adjust: none; /* Safari / older WebKit browsers */
+  text-size-adjust: none;         /* Modern spec-compliant browsers */
+}
+
+/* 
+  Remove default list styling from unordered and ordered lists that 
+  explicitly use role="list".
+*/ 
+ul[role='list'],
+ol[role='list'] {
+  list-style: none;
+}
+
+/* 
+  Ensure the body element always fills at least the full height of the viewport.
+  This prevents short pages from collapsing when the content is minimal.
+*/
+body {
+  min-height: 100vh;
+}
+
+/* 
+  Improve heading readability by evenly distributing words across lines.
+  This prevents awkward line breaks and creates more balanced, aesthetic headings.
+*/
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+}
+
+/* 
+  Reset all link styles to inherit from parent elements.
+  This removes default colors, underlines, and visited/hover states.
+*/
+a {
+  all: unset;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* 
+  Ensure images and <picture> elements scale within their container,
+  preventing overflow and maintaining layout integrity on any screen size.
+*/
+img,
+picture {
+  max-width: 100%;
+  display: block;
+}
+
+/* 
+  Add extra scroll margin above and below elements targeted via anchors.
+  This prevents the element from hugging the top edge of the viewport when navigated to.
+*/
+:target {
+  scroll-margin-block: 1rem;
+}

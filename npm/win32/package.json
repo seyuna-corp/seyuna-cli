@@ -1,0 +1,7 @@
+{
+  "name": "@seyuna/cli-win32",
+  "version": "__CLI_VERSION__",
+  "os": [
+    "win32"
+  ]
+}

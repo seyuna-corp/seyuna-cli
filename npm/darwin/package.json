@@ -1,0 +1,7 @@
+{
+  "name": "@seyuna/cli-darwin",
+  "version": "__CLI_VERSION__",
+  "os": [
+    "darwin"
+  ]
+}
