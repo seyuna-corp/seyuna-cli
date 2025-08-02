@@ -1,7 +1,6 @@
 use once_cell::sync::Lazy;
 use owo_colors::OwoColorize;
 use spinach::{RunningSpinner, Spinner};
-use tokio::time::{Duration, sleep};
 
 /// Generates a gradient-colored string from `start` to `end` RGB values.
 ///
