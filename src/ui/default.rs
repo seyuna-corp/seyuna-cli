@@ -36,7 +36,7 @@ pub static UI_CONFIGURATION: Lazy<types::UI> = Lazy::new(|| types::UI {
         ]),
         light: types::Palette {
             chroma: Number::from_f64(0.70).unwrap(),
-            lightness: Number::from_f64(0.25).unwrap(),
+            lightness: Number::from_f64(0.9).unwrap(),
             background: types::Color {
                 hue: Number::from(0),
                 chroma: Number::from_f64(0.0).unwrap(),
@@ -50,7 +50,7 @@ pub static UI_CONFIGURATION: Lazy<types::UI> = Lazy::new(|| types::UI {
         },
         dark: types::Palette {
             chroma: Number::from_f64(0.70).unwrap(),
-            lightness: Number::from_f64(0.25).unwrap(),
+            lightness: Number::from_f64(0.9).unwrap(),
             background: types::Color {
                 hue: Number::from(0),
                 chroma: Number::from_f64(0.0).unwrap(),
