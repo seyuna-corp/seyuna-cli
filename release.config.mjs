@@ -35,7 +35,7 @@ export default {
         `,
         // Publish: Push npm packages with correct tag
         publishCmd: `
-          TAG=\${branch}
+          TAG=\${branch.name}
           if [ "\$TAG" = "main" ]; then TAG=latest; fi
           for pkg in npm/*; do
             npm publish "\$pkg" --access public --tag "\$TAG"
