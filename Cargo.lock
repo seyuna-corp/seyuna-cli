@@ -1103,7 +1103,7 @@ dependencies = [
 
 [[package]]
 name = "seyuna"
-version = "1.0.0-canary.1"
+version = "1.0.0-canary.3"
 dependencies = [
  "anyhow",
  "clap",
