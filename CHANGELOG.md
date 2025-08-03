@@ -1,3 +1,10 @@
+# 1.0.0-canary.1 (2025-08-03)
+
+
+### Bug Fixes
+
+* replaced clamp() with max() for the root font size ([6586049](https://github.com/seyuna-corp/seyuna-cli/commit/6586049a82e27aa900eb3160141b10fbcb442544))
+
 # [1.0.0-canary.3](https://github.com/seyuna-corp/seyuna-cli/compare/v1.0.0-canary.2...v1.0.0-canary.3) (2025-08-02)
 
 
