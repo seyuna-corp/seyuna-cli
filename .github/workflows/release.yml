@@ -68,10 +68,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js
+      - name: Setup Node.js with npm auth
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          registry-url: https://registry.npmjs.org/
+          scope: '@seyuna'    # adjust to your npm package scope if different
+          always-auth: true
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Download artifacts
         uses: actions/download-artifact@v4
