@@ -1,0 +1,11 @@
+{
+  "name": "@seyuna/cli-darwin",
+  "version": "__CLI_VERSION__",
+  "os": [
+    "darwin"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seyuna-corp/seyuna-cli.git"
+  }
+}

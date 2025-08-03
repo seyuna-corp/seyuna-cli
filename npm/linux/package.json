@@ -1,0 +1,11 @@
+{
+  "name": "@seyuna/cli-linux",
+  "version": "__CLI_VERSION__",
+  "os": [
+    "linux"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seyuna-corp/seyuna-cli.git"
+  }
+}

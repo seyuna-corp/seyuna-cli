@@ -1,0 +1,26 @@
+{
+  "name": "@seyuna/cli",
+  "version": "__CLI_VERSION__",
+  "main": "./index.js",
+  "bin": {
+    "seyuna": "./bin/seyuna.js"
+  },
+  "scripts": {
+    "postinstall": "node ./install.js"
+  },
+  "description": "Seyuna CLI",
+  "author": "Seyuna",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seyuna-corp/seyuna-cli.git"
+  },
+  "optionalDependencies": {
+    "@seyuna/cli-darwin": "__CLI_VERSION__",
+    "@seyuna/cli-linux": "__CLI_VERSION__",
+    "@seyuna/cli-win32": "__CLI_VERSION__"
+  }
+}

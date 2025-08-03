@@ -1,0 +1,92 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+      - canary
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: x86_64-unknown-linux-gnu
+      - run: cargo build --release --target x86_64-unknown-linux-gnu
+      - run: mv target/x86_64-unknown-linux-gnu/release/seyuna target/x86_64-unknown-linux-gnu/release/seyuna-linux
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seyuna-linux
+          path: target/x86_64-unknown-linux-gnu/release/seyuna-linux
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: x86_64-pc-windows-msvc
+      - run: cargo build --release --target x86_64-pc-windows-msvc
+      - run: mv target/x86_64-pc-windows-msvc/release/seyuna.exe target/x86_64-pc-windows-msvc/release/seyuna-windows.exe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seyuna-windows.exe
+          path: target/x86_64-pc-windows-msvc/release/seyuna-windows.exe
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: x86_64-apple-darwin
+      - run: cargo build --release --target x86_64-apple-darwin
+      - run: mv target/x86_64-apple-darwin/release/seyuna target/x86_64-apple-darwin/release/seyuna-macos
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seyuna-macos
+          path: target/x86_64-apple-darwin/release/seyuna-macos
+
+
+  release:
+    name: Semantic Release (Attach + Publish)
+    runs-on: ubuntu-latest
+    needs: [build-linux, build-windows, build-macos]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: List dist contents
+        run: ls -l dist
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npx semantic-release
