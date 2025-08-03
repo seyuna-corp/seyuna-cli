@@ -31,6 +31,8 @@ jobs:
         run: npm ci
 
       - id: check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Run semantic-release dry-run and capture if release needed
           if npx semantic-release --dry-run; then
