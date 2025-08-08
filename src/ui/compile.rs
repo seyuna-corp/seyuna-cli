@@ -202,7 +202,7 @@ pub fn css_variables(config: &Config) -> Result<String> {
     result += "html {";
     result += "color: var(--text);";
     result += "background-color: var(--background);";
-    result += "font-size: max(1rem, 1vw);";
+    result += "font-size: max(1rem, 0.833vw);";
     result += "}";
 
     Ok(result)
