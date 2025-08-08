@@ -86,10 +86,6 @@ pub async fn compile(matches: &ArgMatches) -> Result<Config> {
 
 /// Compiles CSS based on the provided configuration.
 ///
-/// This function calculates the scaling for responsive font sizing between
-/// two breakpoints (_2XL and _4XL), which are used for generating the
-/// required media queries for the upscale in CSS.
-///
 /// # Arguments
 /// * `config` - Reference to the loaded Seyuna configuration.
 ///
