@@ -1,3 +1,10 @@
+# [1.0.0-canary.2](https://github.com/seyuna-corp/seyuna-cli/compare/v1.0.0-canary.1...v1.0.0-canary.2) (2025-08-08)
+
+
+### Bug Fixes
+
+* changed root font-size to 0.833vw to ensure upscaling only after 1920px ([49d344f](https://github.com/seyuna-corp/seyuna-cli/commit/49d344fda5ad1eb2c8a50592740bdac825ecf7cc))
+
 # 1.0.0-canary.1 (2025-08-03)
 
 
